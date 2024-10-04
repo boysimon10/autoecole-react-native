@@ -3,8 +3,13 @@ import { View, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CheckCircleIcon, XCircleIcon } from "react-native-heroicons/outline";
+import { Audio } from 'expo-av'; // Importer expo-av pour jouer des sons
 
 const API_URL = 'http://10.0.2.2:5000/globalQuizzes/';
+
+// Sons pour les réponses correctes et incorrectes
+const correctSound = require('@/assets/sounds/success.mp3');
+const incorrectSound = require('@/assets/sounds/incorrect.mp3');
 
 interface Question {
     text: string;
@@ -53,23 +58,38 @@ export default function QuizPage() {
         }
     };
 
-    const handleAnswer = (selectedIndex: number) => {
+    const playSound = async (soundUri: any) => {
+        const { sound } = await Audio.Sound.createAsync(soundUri);
+        await sound.playAsync();
+    };
+
+    const handleAnswer = async (selectedIndex: number) => {
         if (!quiz) return;
-        
+
         setSelectedAnswer(selectedIndex);
-        
+
+        // Jouer le son approprié
+        if (selectedIndex === quiz.questions[currentQuestion].correctAnswer) {
+            await playSound(correctSound);
+        } else {
+            await playSound(incorrectSound);
+        }
+
         setTimeout(() => {
             if (selectedIndex === quiz.questions[currentQuestion].correctAnswer) {
                 setScore(score + quiz.pointsPerQuestion);
             }
-            
-            if (currentQuestion < quiz.questions.length - 1) {
-                setCurrentQuestion(currentQuestion + 1);
-                setSelectedAnswer(null);
-            } else {
-                setQuizCompleted(true);
-            }
-        }, 1000);
+
+            // Délai pour afficher la bonne réponse avant de passer à la question suivante mdr
+            setTimeout(() => {
+                if (currentQuestion < quiz.questions.length - 1) {
+                    setCurrentQuestion(currentQuestion + 1);
+                    setSelectedAnswer(null);
+                } else {
+                    setQuizCompleted(true);
+                }
+            }, 1500); // Affichage de la bonne réponse pendant 1.5 secondes
+        }, 1000); // Délai avant d'afficher le bon/mauvais feedback wesh
     };
 
     const restartQuiz = () => {

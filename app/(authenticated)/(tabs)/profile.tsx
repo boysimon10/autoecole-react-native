@@ -1,19 +1,52 @@
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from "expo-router";
 import { 
-    UserIcon, 
     CogIcon, 
-    ChartBarIcon, 
-    AcademicCapIcon,
     ArrowRightOnRectangleIcon
 } from "react-native-heroicons/outline";
 import { useAuth } from '../../context/AuthContext';
 
+const API_URL = 'http://10.0.2.2:5000'; 
+
+
+type ProfileData = {
+    username: string;
+    email: string;
+    
+};
+
 export default function Profile() {
     const router = useRouter();
     const headerHeight = useHeaderHeight();
-    const { logout, user } = useAuth(); // Utilisez le hook useAuth
+    const { logout, user } = useAuth();
+    const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+    useEffect(() => {
+        fetchProfileData();
+    }, []);
+
+    const fetchProfileData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/user/profile`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': `${user?.token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch profile data');
+            }
+
+            const data: ProfileData = await response.json();
+            setProfileData(data);
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -26,22 +59,9 @@ export default function Profile() {
 
     const menuItems = [
         {
-            icon: <ChartBarIcon size={24} color="#0072FF" />,
-            title: "Mes statistiques",
-            subtitle: "Voir mes scores et progrès",
-            
-        },
-        {
-            icon: <AcademicCapIcon size={24} color="#0072FF" />,
-            title: "Mes badges",
-            subtitle: "Récompenses débloquées",
-            
-        },
-        {
             icon: <CogIcon size={24} color="#0072FF" />,
             title: "Paramètres",
             subtitle: "Gérer mon compte",
-            
         }
     ];
 
@@ -52,39 +72,24 @@ export default function Profile() {
                 <View className="items-center pt-6 pb-8 px-4">
                     <View className="bg-gray-200 rounded-full p-1 mb-4">
                         <Image
-                            source={{ uri: 'https://ui-avatars.com/api/?name=Admin&background=0072FF&color=fff' }}
+                            source={{ uri: `https://ui-avatars.com/api/?name=${profileData?.username || 'User'}&background=0072FF&color=fff` }}
                             className="w-24 h-24 rounded-full"
                         />
                     </View>
-                    <Text className="text-2xl font-bold mb-1">Admin</Text>
-                    <Text className="text-gray-600 mb-4">admin@admin.com</Text>
-                    <View className="flex-row justify-around w-full mb-4">
-                        <View className="items-center">
-                            <Text className="text-2xl font-bold text-[#0072FF]">23</Text>
-                            <Text className="text-gray-600">Quiz terminés</Text>
-                        </View>
-                        <View className="items-center">
-                            <Text className="text-2xl font-bold text-[#0072FF]">85%</Text>
-                            <Text className="text-gray-600">Taux de réussite</Text>
-                        </View>
-                    </View>
+                    <Text className="text-2xl font-bold mb-1">{profileData?.username || 'Chargement...'}</Text>
+                    <Text className="text-gray-600 mb-4">{profileData?.email || 'Chargement...'}</Text>
                     <TouchableOpacity 
                         className="bg-[#0072FF] py-2 px-6 rounded-full"
-                        
                     >
                         <Text className="text-white font-semibold">Éditer le profil</Text>
                     </TouchableOpacity>
                 </View>
-
-                {/* Séparateur */}
-                {/* <View className="h-2 bg-gray-100" /> */}
 
                 {/* Menu items */}
                 <View className="p-4">
                     {menuItems.map((item, index) => (
                         <TouchableOpacity
                             key={index}
-                            
                             className="flex-row items-center py-4 border-b border-gray-100"
                         >
                             <View className="mr-4">

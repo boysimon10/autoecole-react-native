@@ -3,6 +3,7 @@ import { View, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CheckCircleIcon, XCircleIcon, ArrowLeftIcon } from "react-native-heroicons/outline";
+import { Audio } from 'expo-av'; // Importer expo-av pour jouer des sons
 
 interface Question {
     text: string;
@@ -18,6 +19,11 @@ interface Quiz {
 }
 
 const API_URL = 'http://10.0.2.2:5000/courses';
+
+// Sons pour les réponses correctes et incorrectes
+const correctSound = require('@/assets/sounds/success.mp3');
+const incorrectSound = require('@/assets/sounds/incorrect.mp3');
+
 export default function CourseQuizz() {
     const router = useRouter();
     const { id } = useLocalSearchParams();
@@ -55,11 +61,23 @@ export default function CourseQuizz() {
         }
     };
 
-    const handleAnswer = (selectedIndex: number) => {
+    const playSound = async (soundUri: any) => {
+        const { sound } = await Audio.Sound.createAsync(soundUri);
+        await sound.playAsync();
+    };
+
+    const handleAnswer = async (selectedIndex: number) => {
         if (!quizData) return;
-        
+
         setSelectedAnswer(selectedIndex);
         
+        // Jouer le son approprié
+        if (selectedIndex === quizData.questions[currentQuestion].correctAnswer) {
+            await playSound(correctSound);
+        } else {
+            await playSound(incorrectSound);
+        }
+
         setTimeout(() => {
             if (selectedIndex === quizData.questions[currentQuestion].correctAnswer) {
                 setScore(score + quizData.pointsPerQuestion);
@@ -170,8 +188,8 @@ export default function CourseQuizz() {
                                     ? 'bg-gray-50'
                                     : selectedAnswer === index
                                         ? index === quizData.questions[currentQuestion].correctAnswer
-                                            ? 'bg-green-500'
-                                            : 'bg-red-500'
+                                            ? 'bg-green-500' // Couleur pour la réponse correcte
+                                            : 'bg-red-500'   // Couleur pour la réponse incorrecte
                                         : 'bg-gray-50'
                             }`}
                         >

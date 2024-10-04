@@ -40,6 +40,10 @@ export default function Courses() {
         }
     };
 
+    const filteredCourses = courses.filter(course =>
+        course.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center">
@@ -64,7 +68,7 @@ export default function Courses() {
                     />
                 </View>
 
-                {courses.map((course) => (
+                {filteredCourses.map((course) => (
                     <TouchableOpacity 
                         key={course._id}
                         onPress={() => router.push(`/(authenticated)/course/${course._id}`)}

@@ -16,12 +16,12 @@ export default function CustomHeader() {
           <Text className="ml-2 font-bold text-2xl "></Text>
         </View>
         <View className="flex-row">
-          <TouchableOpacity className="bg-white rounded-full p-2 mr-3">
+          {/* <TouchableOpacity className="bg-white shadow-md rounded-full border border-[#0072FF] p-2 mr-3">
             <MagnifyingGlassIcon size={25} color="#0072FF"/>
-          </TouchableOpacity>
-          {/* <TouchableOpacity className="bg-white shadow-md rounded-full p-2 border border-[#0072FF]">
-            <BellIcon size={25} color="#0072FF"/>
           </TouchableOpacity> */}
+          <TouchableOpacity className="bg-white  rounded-full p-2">
+            <BellIcon size={30} color="#0072FF"/>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
