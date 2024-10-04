@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { CheckCircleIcon, XCircleIcon } from "react-native-heroicons/outline";
-
-const API_URL = 'http://10.0.2.2:5000/globalQuizzes/';
+import { CheckCircleIcon, XCircleIcon, ArrowLeftIcon } from "react-native-heroicons/outline";
 
 interface Question {
     text: string;
@@ -14,19 +12,18 @@ interface Question {
 }
 
 interface Quiz {
-    _id: string;
     title: string;
-    description: string;
     questions: Question[];
     pointsPerQuestion: number;
 }
 
-export default function QuizPage() {
+const API_URL = 'http://10.0.2.2:5000/courses';
+export default function CourseQuizz() {
     const router = useRouter();
     const { id } = useLocalSearchParams();
     const { top } = useSafeAreaInsets();
     
-    const [quiz, setQuiz] = useState<Quiz | null>(null);
+    const [quizData, setQuizData] = useState<Quiz | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -35,35 +32,40 @@ export default function QuizPage() {
     const [quizCompleted, setQuizCompleted] = useState(false);
 
     useEffect(() => {
-        fetchQuiz();
+        fetchQuizData();
     }, [id]);
 
-    const fetchQuiz = async () => {
+    const fetchQuizData = async () => {
         try {
-            const response = await fetch(`${API_URL}${id}`);
+            setLoading(true);
+            const response = await fetch(`${API_URL}/${id}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch quiz');
+                throw new Error('Erreur lors de la récupération des données du quiz');
             }
             const data = await response.json();
-            setQuiz(data);
+            if (!data.quiz) {
+                throw new Error('Aucun quiz trouvé pour ce cours');
+            }
+            setQuizData(data.quiz);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            console.error('Error fetching quiz data:', err);
+            setError('Impossible de charger le quiz. Veuillez réessayer plus tard.');
         } finally {
             setLoading(false);
         }
     };
 
     const handleAnswer = (selectedIndex: number) => {
-        if (!quiz) return;
+        if (!quizData) return;
         
         setSelectedAnswer(selectedIndex);
         
         setTimeout(() => {
-            if (selectedIndex === quiz.questions[currentQuestion].correctAnswer) {
-                setScore(score + quiz.pointsPerQuestion);
+            if (selectedIndex === quizData.questions[currentQuestion].correctAnswer) {
+                setScore(score + quizData.pointsPerQuestion);
             }
             
-            if (currentQuestion < quiz.questions.length - 1) {
+            if (currentQuestion < quizData.questions.length - 1) {
                 setCurrentQuestion(currentQuestion + 1);
                 setSelectedAnswer(null);
             } else {
@@ -87,10 +89,10 @@ export default function QuizPage() {
         );
     }
 
-    if (error || !quiz) {
+    if (error || !quizData) {
         return (
-            <View className="flex-1 justify-center items-center">
-                <Text className="text-red-500">{error || 'Quiz introuvable'}</Text>
+            <View className="flex-1 justify-center items-center p-4">
+                <Text className="text-red-500 text-center">{error || 'Aucun quiz disponible pour ce cours.'}</Text>
             </View>
         );
     }
@@ -101,7 +103,7 @@ export default function QuizPage() {
                 <Text className="text-3xl font-bold mb-4">Quiz terminé !</Text>
                 <Text className="text-xl mb-2">Votre score :</Text>
                 <Text className="text-4xl font-bold text-[#0072FF] mb-8">
-                    {score} / {quiz.questions.length * quiz.pointsPerQuestion}
+                    {score} / {quizData.questions.length * quizData.pointsPerQuestion}
                 </Text>
                 <TouchableOpacity 
                     onPress={restartQuiz}
@@ -113,7 +115,7 @@ export default function QuizPage() {
                     onPress={() => router.back()}
                     className="py-3 px-6 rounded-full"
                 >
-                    <Text className="text-[#0072FF]">Retour</Text>
+                    <Text className="text-[#0072FF]">Retour au cours</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -123,32 +125,42 @@ export default function QuizPage() {
         <View className="bg-white flex-1" style={{ paddingTop: top }}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="p-4">
-                    <Text className="text-xl font-bold mb-4">{quiz.title}</Text>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="mb-4"
+                    >
+                        <ArrowLeftIcon size={24} color="#0072FF" />
+                    </TouchableOpacity>
                     
+                    <Text className="text-xl font-bold mb-4">{quizData.title}</Text>
+                    
+                    {/* Barre de progression */}
                     <View className="mb-4">
                         <View className="flex-row justify-between mb-2">
-                            <Text>Question {currentQuestion + 1}/{quiz.questions.length}</Text>
+                            <Text>Question {currentQuestion + 1}/{quizData.questions.length}</Text>
                             <Text>Score: {score}</Text>
                         </View>
                         <View className="h-2 bg-gray-200 rounded-full">
                             <View 
                                 className="h-2 bg-[#0072FF] rounded-full"
-                                style={{ width: `${((currentQuestion + 1) / quiz.questions.length) * 100}%` }}
+                                style={{ width: `${((currentQuestion + 1) / quizData.questions.length) * 100}%` }}
                             />
                         </View>
                     </View>
 
+                    {/* Question actuelle */}
                     <View className="mb-6">
                         <Image 
-                            source={{ uri: quiz.questions[currentQuestion].image }}
+                            source={{ uri: quizData.questions[currentQuestion].image }}
                             className="w-full h-48 rounded-xl mb-4"
                         />
                         <Text className="text-lg font-semibold mb-4">
-                            {quiz.questions[currentQuestion].text}
+                            {quizData.questions[currentQuestion].text}
                         </Text>
                     </View>
 
-                    {quiz.questions[currentQuestion].options.map((option, index) => (
+                    {/* Options de réponse */}
+                    {quizData.questions[currentQuestion].options.map((option, index) => (
                         <TouchableOpacity 
                             key={index}
                             onPress={() => handleAnswer(index)}
@@ -157,7 +169,7 @@ export default function QuizPage() {
                                 selectedAnswer === null
                                     ? 'bg-gray-50'
                                     : selectedAnswer === index
-                                        ? index === quiz.questions[currentQuestion].correctAnswer
+                                        ? index === quizData.questions[currentQuestion].correctAnswer
                                             ? 'bg-green-500'
                                             : 'bg-red-500'
                                         : 'bg-gray-50'
@@ -167,7 +179,7 @@ export default function QuizPage() {
                                 {option}
                             </Text>
                             {selectedAnswer === index && (
-                                index === quiz.questions[currentQuestion].correctAnswer
+                                index === quizData.questions[currentQuestion].correctAnswer
                                     ? <CheckCircleIcon size={24} color="white" />
                                     : <XCircleIcon size={24} color="white" />
                             )}

@@ -8,10 +8,21 @@ import {
     AcademicCapIcon,
     ArrowRightOnRectangleIcon
 } from "react-native-heroicons/outline";
+import { useAuth } from '../../context/AuthContext';
 
 export default function Profile() {
     const router = useRouter();
     const headerHeight = useHeaderHeight();
+    const { logout, user } = useAuth(); // Utilisez le hook useAuth
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            router.replace('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     const menuItems = [
         {
@@ -90,7 +101,7 @@ export default function Profile() {
                     {/* Bouton de déconnexion */}
                     <TouchableOpacity
                         className="flex-row items-center py-4 mt-4"
-                        onPress={() => {/* Logique de déconnexion */}}
+                        onPress={handleLogout}
                     >
                         <ArrowRightOnRectangleIcon size={24} color="#EF4444" />
                         <Text className="ml-4 text-red-500 font-semibold text-lg">

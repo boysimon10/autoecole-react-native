@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, ScrollView, Text, TouchableOpacity, Image } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { PlayIcon, ClockIcon, AcademicCapIcon } from "react-native-heroicons/outline";
+import { useRouter } from "expo-router";
+import { PlayIcon } from "react-native-heroicons/outline";
 
-interface quizz {
+const API_URL = 'http://10.0.2.2:5000/globalQuizzes/';
+
+interface Quiz {
     _id: string;
     title: string;
     description: string;
@@ -17,74 +19,55 @@ interface quizz {
     pointsPerQuestion: number;
 }
 
-export default function CourseDetail() {
+export default function QuizList() {
     const router = useRouter();
-    const { id } = useLocalSearchParams();
     const headerHeight = useHeaderHeight();
+    const [quizzes, setQuizzes] = React.useState<Quiz[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState<string | null>(null);
 
-    // Ces données devraient venir de votre API
-    const courseData = {
-        _id: id,
-        title: "La Signalisation Routière",
-        description: "Apprenez tous les panneaux et leur signification pour une conduite sûre et responsable.",
-        cover: "https://evs-strapi-images-prod.imgix.net/Illus_fc_Ensemble_panneaux_danger_30c5e11be4.png?w=3840&q=75",
-        quizzes: [
-            {
-                _id: "quiz1",
-                title: "Les panneaux de danger",
-                description: "Testez vos connaissances sur les panneaux triangulaires",
-                questions: [
-                    {
-                        text: "Que signifie ce panneau ?",
-                        image: "https://example.com/panneau1.jpg",
-                        options: ["Virage à droite", "Virage à gauche", "Route sinueuse", "Chaussée rétrécie"],
-                        correctAnswer: 0
-                    }
-                ],
-                pointsPerQuestion: 1
-            },
-            {
-                _id: "quiz2",
-                title: "Les panneaux d'obligation",
-                description: "Maîtrisez les panneaux ronds à fond bleu",
-                questions: [
-                    {
-                        text: "Quel est le sens de ce panneau ?",
-                        image: "https://example.com/panneau2.jpg",
-                        options: ["Obligation de tourner", "Direction obligatoire", "Contournement obligatoire", "Piste cyclable"],
-                        correctAnswer: 1
-                    }
-                ],
-                pointsPerQuestion: 1
+    React.useEffect(() => {
+        fetchQuizzes();
+    }, []);
+
+    const fetchQuizzes = async () => {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error('Failed to fetch quizzes');
             }
-        ]
+            const data = await response.json();
+            setQuizzes(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setLoading(false);
+        }
     };
+
+    if (loading) {
+        return (
+            <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#0072FF" />
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View className="flex-1 justify-center items-center">
+                <Text className="text-red-500">{error}</Text>
+            </View>
+        );
+    }
 
     return (
         <View className="bg-white flex-1" style={{ paddingTop: headerHeight }}>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <Image 
-                    source={{ uri: courseData.cover }}
-                    className="w-full h-48"
-                />
                 <View className="p-4">
-                    <Text className="text-2xl font-bold mb-2">{courseData.title}</Text>
-                    <Text className="text-gray-600 mb-4">{courseData.description}</Text>
+                    <Text className="text-2xl font-bold mb-4">Quiz disponibles</Text>
                     
-                    <View className="flex-row mb-6">
-                        <View className="flex-row items-center mr-4">
-                            <ClockIcon size={20} color="#666" />
-                            <Text className="ml-1 text-gray-600">20 min</Text>
-                        </View>
-                        <View className="flex-row items-center">
-                            <AcademicCapIcon size={20} color="#666" />
-                            <Text className="ml-1 text-gray-600">{courseData.quizzes.length} quiz</Text>
-                        </View>
-                    </View>
-
-                    <Text className="text-lg font-semibold mb-4">Quiz disponibles</Text>
-                    
-                    {courseData.quizzes.map((quiz) => (
+                    {quizzes.map((quiz) => (
                         <TouchableOpacity 
                             key={quiz._id}
                             onPress={() => router.push(`/(authenticated)/quizz/${quiz._id}`)}

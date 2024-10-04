@@ -1,27 +1,74 @@
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { PlusIcon, AcademicCapIcon, ClockIcon } from "react-native-heroicons/mini";
+import { AcademicCapIcon, ClockIcon } from "react-native-heroicons/mini";
 import { useRouter } from "expo-router";
 import CourseCard from '@/components/CourseCard';
 
-export default function index() {
+const API_URL = 'http://10.0.2.2:5000';
+
+interface Quiz {
+    _id: string;
+    title: string;
+    description: string;
+    image?: string;
+}
+
+interface Course {
+    _id: string;
+    title: string;
+    description: string;
+    cover: string;
+}
+
+export default function HomePage() {
     const router = useRouter();
     const headerHeight = useHeaderHeight();
 
-    const featuredQuizzes = [
-        {
-            id: '1',
-            title: "Quiz du jour",
-            description: "Testez vos connaissances quotidiennes",
-            image: "https://evs-strapi-images-prod.imgix.net/Illus_fc_Ensemble_panneaux_danger_30c5e11be4.png?w=3840&q=75"
-        },
-        {
-            id: '2',
-            title: "Quiz rapide",
-            description: "5 questions en 5 minutes",
-            image: "https://cdn.prod.website-files.com/6413856d54d41b5f298d5953/64c928999fe70183d726b9db_depassement-intersection.png"
+    const [featuredQuizzes, setFeaturedQuizzes] = useState<Quiz[]>([]);
+    const [latestCourse, setLatestCourse] = useState<Course | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        Promise.all([
+            fetchQuizzes(),
+            fetchCourses()
+        ]).finally(() => setLoading(false));
+    }, []);
+
+    const fetchQuizzes = async () => {
+        try {
+            const response = await fetch(`${API_URL}/globalQuizzes`);
+            if (!response.ok) throw new Error('Failed to fetch quizzes');
+            const data = await response.json();
+            setFeaturedQuizzes(data.slice(0, 2)); // Limiter à 2 quiz pour l'affichage en vedette
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         }
-    ];
+    };
+
+    const fetchCourses = async () => {
+        try {
+            const response = await fetch(`${API_URL}/courses`); // URL corrigée
+            if (!response.ok) throw new Error('Failed to fetch courses');
+            const data = await response.json();
+            // Prendre le dernier cours de la liste
+            if (data.length > 0) {
+                setLatestCourse(data[data.length - 1]);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        }
+    };
+
+    if (loading) {
+        return (
+            <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#0072FF" />
+            </View>
+        );
+    }
 
     return (
         <View className="bg-white flex-1" style={{ paddingTop: headerHeight }}>
@@ -40,42 +87,52 @@ export default function index() {
                             <Text className="text-[#0072FF]">Voir tout</Text>
                         </TouchableOpacity>
                     </View>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        {featuredQuizzes.map((quiz) => (
-                            <TouchableOpacity 
-                                key={quiz.id}
-                                className="mr-4 bg-gray-50 rounded-xl overflow-hidden"
-                                style={{ width: 200 }}
-                                onPress={() => router.push(`/(authenticated)/quizz/${quiz.id}`)}
-                            >
-                                <Image 
-                                    source={{ uri: quiz.image }}
-                                    className="w-full h-24"
-                                />
-                                <View className="p-3">
-                                    <Text className="font-semibold mb-1">{quiz.title}</Text>
-                                    <Text className="text-gray-600 text-sm">{quiz.description}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    {featuredQuizzes.length > 0 ? (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            {featuredQuizzes.map((quiz) => (
+                                <TouchableOpacity 
+                                    key={quiz._id}
+                                    className="mr-4 bg-gray-50 rounded-xl overflow-hidden"
+                                    style={{ width: 200 }}
+                                    onPress={() => router.push(`/(authenticated)/quizz/${quiz._id}`)}
+                                >
+                                    <Image 
+                                        source={{ uri: quiz.image }}
+                                        className="w-full h-24"
+                                    />
+                                    <View className="p-3">
+                                        <Text className="font-semibold mb-1">{quiz.title}</Text>
+                                        <Text className="text-gray-600 text-sm">{quiz.description}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    ) : (
+                        <Text className="text-gray-500">Aucun quiz disponible pour le moment</Text>
+                    )}
                 </View>
 
                 {/* Section Cours */}
                 <View className="mb-6">
                     <View className="flex-row justify-between items-center mb-4">
-                        <Text className="text-lg font-semibold">Cours disponibles</Text>
+                        <Text className="text-lg font-semibold">Dernier cours</Text>
                         <TouchableOpacity onPress={() => router.push("/courses")}>
                             <Text className="text-[#0072FF]">Voir tout</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity onPress={() => router.push("/(authenticated)/course/1")} >
-                        <CourseCard
-                            title="La Signalisation Routière"
-                            description="Apprenez tous les panneaux et leur signification"
-                            cover="https://evs-strapi-images-prod.imgix.net/Illus_fc_Ensemble_panneaux_danger_30c5e11be4.png?w=3840&q=75"
-                        />
-                    </TouchableOpacity>
+                    {latestCourse ? (
+                        <TouchableOpacity 
+                            onPress={() => router.push(`/(authenticated)/course/${latestCourse._id}`)}
+                        >
+                            <CourseCard
+                                title={latestCourse.title}
+                                description={latestCourse.description}
+                                cover={latestCourse.cover}
+                            />
+                        </TouchableOpacity>
+                    ) : (
+                        <Text className="text-gray-500">Aucun cours disponible pour le moment</Text>
+                    )}
                 </View>
 
                 {/* Statistiques rapides */}

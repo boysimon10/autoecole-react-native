@@ -12,29 +12,15 @@ interface Course {
     cover: string;
 }
 
-const DUMMY_COURSES: Course[] = [
-    {
-        _id: "1",
-        title: "La Signalisation Routière",
-        description: "Voici le développement détaillé des sous-thèmes, qui permettront de bien expliquer la signalisation et ses implications pratiques pour la conduite.",
-        cover: "https://evs-strapi-images-prod.imgix.net/Illus_fc_Ensemble_panneaux_danger_30c5e11be4.png?w=3840&q=75"
-    },
-    {
-        _id: "2",
-        title: "Les règles de priorité",
-        description: "Les règles de priorité sur la route sont essentielles pour éviter les accidents et fluidifier la circulation.",
-        cover: "https://cdn.prod.website-files.com/6413856d54d41b5f298d5953/64c928999fe70183d726b9db_depassement-intersection.png"
-    }
-];
+const API_URL = 'http://10.0.2.2:5000/courses';
 
 export default function Courses() {
     const router = useRouter();
     const headerHeight = useHeaderHeight();
-    const [courses, setCourses] = useState<Course[]>(DUMMY_COURSES);
-    const [loading, setLoading] = useState(false);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
-    /* Uncomment when API is ready
     useEffect(() => {
         fetchCourses();
     }, []);
@@ -53,7 +39,6 @@ export default function Courses() {
             setLoading(false);
         }
     };
-    */
 
     if (loading) {
         return (

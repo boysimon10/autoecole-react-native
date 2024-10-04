@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { BookOpenIcon, ClockIcon, AcademicCapIcon, ChevronDownIcon, ChevronUpIcon } from "react-native-heroicons/outline";
@@ -25,70 +25,91 @@ interface Quiz {
 }
 
 interface Course {
+  _id: string;
   title: string;
   description: string;
+  cover: string;
   chapters: Chapter[];
   quiz?: Quiz;
   createdAt: string;
 }
+
+const API_URL = 'http://10.0.2.2:5000/courses'; // Assurez-vous que cette URL correspond à votre configuration
 
 export default function CourseDetail() {
     const router = useRouter();
     const { id } = useLocalSearchParams();
     const { top } = useSafeAreaInsets();
     const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+    const [courseData, setCourseData] = useState<Course | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Ces données devraient venir de votre API
-    const courseData: Course = {
-        title: "La Signalisation Routière",
-        description: "Apprenez tous les panneaux et leur signification pour une conduite sûre et responsable.",
-        chapters: [
-            {
-                title: "Les panneaux de danger",
-                content: "Les panneaux de danger sont de forme triangulaire avec un fond blanc et une bordure rouge. Ils avertissent les usagers de la route d'un danger potentiel et les incitent à redoubler de vigilance.",
-                image: "https://evs-strapi-images-prod.imgix.net/Illus_fc_Ensemble_panneaux_danger_30c5e11be4.png?w=3840&q=75"
-            },
-            {
-                title: "Les panneaux d'interdiction",
-                content: "Les panneaux d'interdiction sont circulaires avec un fond blanc et une bordure rouge. Ils indiquent une interdiction spécifique aux usagers de la route.",
-                image: "https://example.com/interdiction.jpg"
+    useEffect(() => {
+        fetchCourseData();
+    }, [id]);
+
+    const fetchCourseData = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${API_URL}/${id}`);
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des données du cours');
             }
-        ],
-        quiz: {
-            title: "Test sur la signalisation",
-            questions: [
-                {
-                    text: "Que signifie ce panneau triangulaire rouge et blanc ?",
-                    image: "https://example.com/panneau1.jpg",
-                    options: ["Danger", "Stop", "Céder le passage", "Interdiction"],
-                    correctAnswer: 0
-                }
-            ],
-            pointsPerQuestion: 1
-        },
-        createdAt: new Date().toISOString()
+            const data = await response.json();
+            setCourseData(data);
+        } catch (err) {
+            console.error('Error fetching course data:', err);
+            setError('Impossible de charger les détails du cours. Veuillez réessayer plus tard.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const toggleChapter = (index: number) => {
         setExpandedChapter(expandedChapter === index ? null : index);
     };
 
+    if (loading) {
+        return (
+            <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#0072FF" />
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View className="flex-1 justify-center items-center p-4">
+                <Text className="text-red-500 text-center">{error}</Text>
+            </View>
+        );
+    }
+
+    if (!courseData) {
+        return (
+            <View className="flex-1 justify-center items-center p-4">
+                <Text className="text-center">Aucune donnée de cours disponible.</Text>
+            </View>
+        );
+    }
+
     return (
         <View className="bg-white flex-1">
             <View className="h-auto pb-2" style={{ paddingTop: top }}>
-        <View className="mx-4 mt-2 flex flex-row items-center">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="rounded-full p-1 mr-3 border border-[#0072FF]"
-          >
-            <ChevronLeftIcon size={30} color="#0072FF"/>
-          </TouchableOpacity>
-        </View>
-      </View>
+                <View className="mx-4 mt-2 flex flex-row items-center">
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="rounded-full p-1 mr-3 border border-[#0072FF]"
+                    >
+                        <ChevronLeftIcon size={30} color="#0072FF"/>
+                    </TouchableOpacity>
+                </View>
+            </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                {courseData.chapters[0]?.image && (
+                {courseData.cover && (
                     <Image 
-                        source={{ uri: courseData.chapters[0].image }}
+                        source={{ uri: courseData.cover }}
                         className="w-full h-48"
                     />
                 )}
@@ -148,7 +169,7 @@ export default function CourseDetail() {
                         <>
                             <Text className="text-lg font-semibold mb-4">Quiz du cours</Text>
                             <TouchableOpacity 
-                                onPress={() => router.push(`/(authenticated)/quizz/${id}`)}
+                                onPress={() => router.push(`/(authenticated)/courseQuizz/${id}`)}
                                 className="bg-[#0072FF] p-4 rounded-xl flex-row items-center justify-between"
                             >
                                 <View>
