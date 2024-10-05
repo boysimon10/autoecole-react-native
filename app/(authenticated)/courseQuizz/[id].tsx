@@ -3,7 +3,7 @@ import { View, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CheckCircleIcon, XCircleIcon, ArrowLeftIcon } from "react-native-heroicons/outline";
-import { Audio } from 'expo-av'; // Importer expo-av pour jouer des sons
+import { Audio } from 'expo-av'; 
 
 interface Question {
     text: string;
@@ -20,7 +20,7 @@ interface Quiz {
 
 const API_URL = 'http://10.0.2.2:5000/courses';
 
-// Sons pour les réponses correctes et incorrectes
+
 const correctSound = require('@/assets/sounds/success.mp3');
 const incorrectSound = require('@/assets/sounds/incorrect.mp3');
 

@@ -11,7 +11,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useAuth } from './context/AuthContext'; // Assurez-vous que le chemin est correct
+import { useAuth } from './context/AuthContext'; 
 
 export default function Login() {
   const router = useRouter();

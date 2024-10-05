@@ -34,7 +34,7 @@ interface Course {
   createdAt: string;
 }
 
-const API_URL = 'http://10.0.2.2:5000/courses'; // Assurez-vous que cette URL correspond à votre configuration
+const API_URL = 'http://10.0.2.2:5000/courses'; 
 
 export default function CourseDetail() {
     const router = useRouter();

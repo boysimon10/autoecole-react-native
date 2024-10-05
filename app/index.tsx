@@ -2,7 +2,7 @@ import { Text, View, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 
 export default function Index() {
-  const router = useRouter(); // Assurez-vous que useRouter est seulement appelé une fois ici
+  const router = useRouter(); 
 
   return (
     <View className="flex-1 bg-white p-4">

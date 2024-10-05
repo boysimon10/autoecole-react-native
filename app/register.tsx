@@ -13,7 +13,7 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeftIcon } from "react-native-heroicons/mini";
-import { useAuth } from './context/AuthContext'; // Assurez-vous que le chemin est correct
+import { useAuth } from './context/AuthContext'; 
 
 export default function Register() {
   const router = useRouter();

@@ -7,7 +7,7 @@ import { Audio } from 'expo-av'; // Importer expo-av pour jouer des sons
 
 const API_URL = 'http://10.0.2.2:5000/globalQuizzes/';
 
-// Sons pour les réponses correctes et incorrectes
+
 const correctSound = require('@/assets/sounds/success.mp3');
 const incorrectSound = require('@/assets/sounds/incorrect.mp3');
 
@@ -68,7 +68,7 @@ export default function QuizPage() {
 
         setSelectedAnswer(selectedIndex);
 
-        // Jouer le son approprié
+        
         if (selectedIndex === quiz.questions[currentQuestion].correctAnswer) {
             await playSound(correctSound);
         } else {
@@ -80,7 +80,7 @@ export default function QuizPage() {
                 setScore(score + quiz.pointsPerQuestion);
             }
 
-            // Délai pour afficher la bonne réponse avant de passer à la question suivante mdr
+            
             setTimeout(() => {
                 if (currentQuestion < quiz.questions.length - 1) {
                     setCurrentQuestion(currentQuestion + 1);
