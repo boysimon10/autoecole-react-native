@@ -1,50 +1,29 @@
-# Welcome to your Expo app 👋
+# React Native Driving School App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a React Native Driving School app for learning traffic rules with interactive courses and quizzes for the built as part of the <JeemaCoder /> Hackathon by Bakeli.
 
-## Get started
+### Stack:
 
-1. Install dependencies
+- [Expo Router](https://docs.expo.dev/routing/introduction/) for file-based navigation and API Routes
+- [Native Wind](https://nativewind.dev/docs/installation) for styling with Tailwind adapted for React Native
+- [Expo AV](https://docs.expo.dev/versions/latest/sdk/av/) for quiz sound effects
+- API Express.js: [link-to-express-api-repo](https://github.com/boysimon10/autoecole-api)
+- MongoDB for database management
 
-   ```bash
-   npm install
-   ```
+### Screenshots
 
-2. Start the app
+<div style="display: flex; flex-direction: 'row';">
+<img src="./screenshots/1.png" width=20%>
+<img src="./screenshots/2.png" width=20%>
+<img src="./screenshots/3.png" width=20%>
+<img src="./screenshots/4.png" width=20%>
+<img src="./screenshots/5.png" width=20%>
+<img src="./screenshots/6.png" width=20%>
+<img src="./screenshots/7.png" width=20%>
+<img src="./screenshots/8.png" width=20%>
+<img src="./screenshots/9.png" width=20%>
+<img src="./screenshots/10.png" width=20%>
+<img src="./screenshots/11.png" width=20%>
+<img src="./screenshots/12.png" width=20%>
 
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+</div>
