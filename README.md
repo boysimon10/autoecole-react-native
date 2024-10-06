@@ -1,6 +1,6 @@
 # React Native Driving School App
 
-This is a React Native Driving School app for learning traffic rules with interactive courses and quizzes for the built as part of the "<JeemaCoder />" Hackathon by Bakeli.
+This is a React Native Driving School app for learning traffic rules with interactive courses and quizzes for the built as part of the "JeemaCoder" Hackathon by Bakeli.
 
 ### Stack:
 
