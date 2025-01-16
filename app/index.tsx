@@ -1,11 +1,13 @@
 import { Text, View, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 export default function Index() {
   const router = useRouter(); 
 
   return (
     <View className="flex-1 bg-white p-4">
+      <StatusBar style="dark" />
       {/* Contenu central */}
       <View className="flex-1 items-center justify-center">
         <Image

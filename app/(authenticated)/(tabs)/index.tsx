@@ -4,6 +4,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { AcademicCapIcon, ClockIcon } from "react-native-heroicons/mini";
 import { useRouter } from "expo-router";
 import CourseCard from '@/components/CourseCard';
+import { StatusBar } from 'expo-status-bar';
 
 const API_URL = 'http://10.0.2.2:5000';
 
@@ -72,6 +73,7 @@ export default function HomePage() {
 
     return (
         <View className="bg-white flex-1" style={{ paddingTop: headerHeight }}>
+            <StatusBar style="dark" />
             <ScrollView showsVerticalScrollIndicator={false} className="p-4">
                 {/* En-tête avec salutation */}
                 <View className="mb-6">

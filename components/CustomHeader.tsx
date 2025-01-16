@@ -1,4 +1,5 @@
-import { Text, View, TouchableOpacity, Image, StatusBar, StyleSheet } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Text, View, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { BellIcon, MagnifyingGlassIcon } from "react-native-heroicons/solid";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,9 +7,7 @@ export default function CustomHeader() {
     const { top } = useSafeAreaInsets();
   return (
     <View>
-    <StatusBar
-        barStyle="dark-content"
-      />
+    <StatusBar style="dark" />
     <View className="h-auto bg-white pb-4 border-b border-gray-200" style={{ paddingTop: top }}>
       <View className="mx-4 mt-2 flex-row items-center justify-between">
         <View className="flex-row">

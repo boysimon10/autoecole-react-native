@@ -3,7 +3,7 @@ import { View, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CheckCircleIcon, XCircleIcon } from "react-native-heroicons/outline";
-import { Audio } from 'expo-av'; // Importer expo-av pour jouer des sons
+import { Audio } from 'expo-av'; 
 
 const API_URL = 'http://10.0.2.2:5000/globalQuizzes/';
 
